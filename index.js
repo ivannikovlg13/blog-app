@@ -1,20 +1,23 @@
 import express from 'express';
-import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
+
+import { registerValidation } from './validations/auth.js';
+import checkAuth from './utils/checkAuth.js';
+import * as UserController from './controllers/UserController.js';
+
+mongoose
+  .connect(
+    'mongodb+srv://admin:wwwwww@cluster0.0yvcxr5.mongodb.net/blog?retryWrites=true&w=majority',
+  )
+  .then(() => console.log('DB OK'))
+  .catch((err) => console.log('DB error', err));
 
 const app = express();
-
 app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.send('111 Hello World');
-});
-
-app.post('/auth/login', (req, res) => {
-  console.log(req.body);
-  res.json({
-    sucess: true,
-  });
-});
+app.post('/auth/login', UserController.login);
+app.post('/auth/register', registerValidation, UserController.register);
+app.get('/auth/me', checkAuth, UserController.getMe);
 
 app.listen(4444, (err) => {
   if (err) {
